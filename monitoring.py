@@ -3,10 +3,6 @@ import time
 import pandas as pd
 from preprocess import process_new_data
 
-# monitoring.py
-
-# ... (other imports and code)
-
 # Function to process new data and update the model
 def process_and_update_model(model, features, final_df, max_iterations=5):
     iterations = 0
