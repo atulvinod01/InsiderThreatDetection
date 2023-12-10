@@ -30,6 +30,7 @@ if X_test is not None:
     evaluate_model(kmeans_model, X_test, y_test)
 else:
     evaluate_trained_model(model_filename, X_test, y_test)
+    
 
 # Start the monitoring loop in a separate thread
 monitoring_thread = threading.Thread(target=process_and_update_model, args=(kmeans_model, features, final_df))
@@ -40,11 +41,11 @@ monitoring_thread.join()
 time.sleep(2)
 
 # Allow the user to interactively predict insider threats
-while True:
+'''while True:
     user_input = input("Do you want to predict an insider threat? (yes/no): ").lower()
     if user_input == 'yes':
         predict_insider_threat(kmeans_model, features)
     elif user_input == 'no':
         break
     else:
-        print("Invalid input. Please enter 'yes' or 'no'.")
+        print("Invalid input. Please enter 'yes' or 'no'.")'''
