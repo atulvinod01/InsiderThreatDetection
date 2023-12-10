@@ -1,3 +1,4 @@
+#preprocess.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -41,7 +42,6 @@ def load_and_preprocess_data():
     merged_df = merged_df.loc[:, ~merged_df.columns.duplicated()]
     merged_df['role'].fillna('NormalUser', inplace=True)
 
-    # Another round of data processing
     http_df.rename(columns={'http://cnet.com': 'url'}, inplace=True)
     merged_df = pd.merge(merged_df, ldap_df, how='left', left_on='user', right_on=user_id_column, suffixes=('', suffix))
     merged_df['role'] = merged_df['Role']
