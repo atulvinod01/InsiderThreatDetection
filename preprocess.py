@@ -95,16 +95,29 @@ def load_and_preprocess_data():
 X, X_train, X_test, y_train, y_test, features, final_df = load_and_preprocess_data()
 print("Data Preprocessing Completed.")
 
+
 def process_new_data(new_data):
-    # Replace the following lines with the actual preprocessing steps for your new data
-    new_data.rename(columns={'new_column_name': 'url'}, inplace=True)
+    # Check if 'date' column is present in new_data
+    if 'date' not in new_data.columns:
+        print("Error: 'date' column not found in new_data.")
+        return None
+
+    # Convert 'date' to datetime
     new_data['date'] = pd.to_datetime(new_data['date'])
-    new_data['domain'] = new_data['url'].str.extract(r'^(?:https?://)?(?:www\.)?([^/]+)')
+
+    # Feature engineering for 'day_of_week' and 'after_hours'
+    new_data['day_of_week'] = new_data['date'].dt.dayofweek
+    new_data['after_hours'] = ((new_data['date'].dt.hour < 9) | (new_data['date'].dt.hour > 17)).astype(int)
+
+    # Simulate checking if an external device is connected
+    new_data['device_count'] = 1  # Assuming an external device is always connected
+
+    # Simulate checking if a mail sent has an attachment
+    new_data['attachment_count'] = new_data.get('attachment_count', 0)  # Default to 0 if 'attachment_count' is not present
 
     # Assuming the same features are used for the model
-    new_features = new_data[['day_of_week', 'after_hours', 'device_count', 'url_count', 'email_count', 'attachment_count', 'file_count']]
+    new_features = new_data[['day_of_week', 'after_hours', 'device_count', 'attachment_count']]
 
-    return new_features
 
 def generate_alerts():
     pass
