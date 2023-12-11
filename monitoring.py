@@ -16,6 +16,16 @@ def process_and_update_model(model, features, final_df, max_iterations=5):
                 # Preprocess the new data
                 new_features = process_new_data(new_data)
 
+                # Handle the case where new_features is None or empty
+                if new_features is None or new_features.empty:
+                    print("Skipping model update due to invalid input data.")
+                    continue
+
+                # Handle the case where new_features is a scalar or contains NaN values
+                if new_features.ndim == 1 or new_features.isnull().values.any():
+                    print("Skipping model update due to invalid input data.")
+                    continue
+
                 # Predict using the updated model
                 new_predictions = model.predict(new_features)
 
@@ -43,5 +53,6 @@ def process_and_update_model(model, features, final_df, max_iterations=5):
 
     print(f"Maximum iterations ({max_iterations}) reached. Stopping the monitoring loop.")
 
-def generate_alerts():
+def generate_alerts(new_data, new_predictions):
+    # Add your alerting logic here
     pass
