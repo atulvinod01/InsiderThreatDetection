@@ -1,14 +1,13 @@
-from sklearn.decomposition import PCA
-import seaborn as sns
-from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, f1_score
-from preprocess import final_df
-import joblib
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+import seaborn as sns
 import numpy as np
-import pandas as pd 
-from sklearn.metrics import precision_recall_curve, average_precision_score
-
+import pandas as pd
+from joblib import load
+from preprocess import load_and_preprocess_data
 
 def evaluate_model(kmeans_model, X_test, y_test):
     # Ensure X_test is not None
@@ -20,8 +19,7 @@ def evaluate_model(kmeans_model, X_test, y_test):
         accuracy = accuracy_score(y_test, y_pred)
         conf_matrix = confusion_matrix(y_test, y_pred)
         class_report = classification_report(y_test, y_pred)
-        precision, recall, _ = precision_recall_curve(y_test, y_pred)
-        average_precision = average_precision_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
 
         print("Model Evaluation")
         print(f"Accuracy: {accuracy}")
@@ -29,55 +27,19 @@ def evaluate_model(kmeans_model, X_test, y_test):
         print(conf_matrix)
         print("Classification Report:")
         print(class_report)
+        print(f"F1 Score: {f1}")
 
-        conf_matrix = confusion_matrix(y_test, y_pred)
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False)
-        plt.title('Confusion Matrix')
-        plt.xlabel('Predicted')
-        plt.ylabel('Actual')
-        plt.show()
-
-        plt.figure()
-        plt.step(recall, precision, color='b', alpha=0.2, where='post')
-        plt.fill_between(recall, precision, step='post', alpha=0.2, color='b')
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title(f'Precision-Recall Curve (AP={average_precision:.2f})')
-        plt.show()
-
-        classes = ['Class 0', 'Class 1']
-        precision = [0.48, 0.52]
-        recall = [0.39, 0.61]
-        f1_score = [0.43, 0.56]
-
-        bar_width = 0.25
-        index = np.arange(len(classes))
-
-        plt.bar(index, precision, width=bar_width, label='Precision')
-        plt.bar(index + bar_width, recall, width=bar_width, label='Recall')
-        plt.bar(index + 2 * bar_width, f1_score, width=bar_width, label='F1-Score')
-
-        plt.xlabel('Classes')
-        plt.ylabel('Scores')
-        plt.title('Precision, Recall, and F1-Score by Class')
-        plt.xticks(index + bar_width, classes)
-        plt.legend()
-        plt.show()
-
-        support = [88240, 94810]
-
-        plt.barh(classes, support, color='lightblue')
-        plt.xlabel('Support')
-        plt.title('Support for Each Class')
-        plt.show()
-
-
+        # Visualize clusters using scatter plot
+        visualize_clusters_with_centroids(X_test, kmeans_model)
+        
+        # Plot the Elbow Method
+        plot_elbow_method(X_test)
     else:
         print("X_test is not available for evaluation.")
 
 def evaluate_trained_model(model_filename, X_test, y_test):
     # Load the pre-trained model
-    kmeans_model = joblib.load(model_filename)
+    kmeans_model = load(model_filename)
 
     # Ensure X_test is not None and does not contain NaN values
     if X_test is not None and not np.isnan(X_test).any():
@@ -89,8 +51,6 @@ def evaluate_trained_model(model_filename, X_test, y_test):
         conf_matrix = confusion_matrix(y_test, y_pred)
         class_report = classification_report(y_test, y_pred)
         f1 = f1_score(y_test, y_pred)
-        precision, recall, _ = precision_recall_curve(y_test, y_pred)
-        average_precision = average_precision_score(y_test, y_pred)
 
         print("Model Evaluation")
         print(f"Accuracy: {accuracy}")
@@ -100,46 +60,50 @@ def evaluate_trained_model(model_filename, X_test, y_test):
         print(class_report)
         print(f"F1 Score: {f1}")
 
-        conf_matrix = confusion_matrix(y_test, y_pred)
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False)
-        plt.title('Confusion Matrix')
-        plt.xlabel('Predicted')
-        plt.ylabel('Actual')
-        plt.show()
+        # Visualize clusters using scatter plot
+        visualize_clusters_with_centroids(X_test, kmeans_model)
 
-        plt.figure()
-        plt.step(recall, precision, color='b', alpha=0.2, where='post')
-        plt.fill_between(recall, precision, step='post', alpha=0.2, color='b')
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title(f'Precision-Recall Curve (AP={average_precision:.2f})')
-        plt.show()
-
-        classes = ['Class 0', 'Class 1']
-        precision = [0.48, 0.52]
-        recall = [0.39, 0.61]
-        f1_score = [0.43, 0.56]
-
-        bar_width = 0.25
-        index = np.arange(len(classes))
-
-        plt.bar(index, precision, width=bar_width, label='Precision')
-        plt.bar(index + bar_width, recall, width=bar_width, label='Recall')
-        plt.bar(index + 2 * bar_width, f1_score, width=bar_width, label='F1-Score')
-
-        plt.xlabel('Classes')
-        plt.ylabel('Scores')
-        plt.title('Precision, Recall, and F1-Score by Class')
-        plt.xticks(index + bar_width, classes)
-        plt.legend()
-        plt.show()
-
-        support = [88240, 94810]
-
-        plt.barh(classes, support, color='lightblue')
-        plt.xlabel('Support')
-        plt.title('Support for Each Class')
-        plt.show()
-
+        # Plot the Elbow Method
+        plot_elbow_method(X_test)
     else:
         print("X_test is not available or contains NaN values for evaluation.")
+
+def visualize_clusters_with_centroids(X_test, kmeans_model):
+    # Perform dimensionality reduction (PCA) if X_test has more than two features
+    if X_test.shape[1] > 2:
+        X_test_reduced = PCA(n_components=2).fit_transform(X_test)
+    else:
+        X_test_reduced = X_test
+
+    # Add a 'cluster' column to the DataFrame
+    X_test_clustered = X_test.copy()
+    X_test_clustered['cluster'] = kmeans_model.predict(X_test)
+
+    # Plot data points
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(x='day_of_week', y='url_count', hue='cluster', data=X_test_clustered, palette='viridis', s=100, alpha=0.8)
+
+    # Plot centroids
+    centroids_reduced = PCA(n_components=2).fit_transform(kmeans_model.cluster_centers_)
+    plt.scatter(centroids_reduced[:, 0], centroids_reduced[:, 1], marker='X', s=200, c='red', label='Centroids')
+
+    plt.title('Scatter Plot for Clusters with Centroids')
+    plt.xlabel('Day of the Week')
+    plt.ylabel('URL Count')
+    plt.legend()
+
+    plt.show()
+
+def plot_elbow_method(X):
+    distortions = []
+    for i in range(1, 11):
+        kmeans = KMeans(n_clusters=i, random_state=42, n_init=10)
+        kmeans.fit(X)
+        distortions.append(kmeans.inertia_)
+
+    plt.plot(range(1, 11), distortions, marker='o')
+    plt.title('Elbow Method for Optimal k')
+    plt.xlabel('Number of Clusters (k)')
+    plt.ylabel('Inertia')
+    plt.show()
+
