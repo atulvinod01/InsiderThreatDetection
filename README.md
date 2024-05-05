@@ -27,9 +27,13 @@ Ensure you have the required dependencies installed. Use the following commands:
 Files and Modules
 
 preprocess.py: Handles data loading, preprocessing, and feature engineering.
+
 train.py: Manages the training of the KMeans clustering model.
+
 monitoring.py: Monitors data for updates and re-trains the model accordingly.
+
 predict.py: Allows users to interactively predict insider threats.
+
 evaluate.py: Evaluates the performance of the model.
 
 Dependencies
