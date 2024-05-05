@@ -1,47 +1,43 @@
 # Insider Threat Detection
 
-## Overview
+This project aims to develop a system for detecting potential insider threats within an organization by analyzing user activity logs. By leveraging advanced machine learning techniques, the system seeks to identify unusual patterns that could indicate malicious or unauthorized actions.
 
-This project is designed to detect and predict insider threats using a KMeans clustering model. The system involves data preprocessing, model training, monitoring, and interactive predictions.
+## Getting Started
 
-## Project Structure
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
-- `app/`: Main project directory containing the application code.
-  - `preprocess.py`: Data preprocessing module.
-  - `train.py`: Module for training the KMeans clustering model.
-  - `monitoring.py`: Module for monitoring and updating the model.
-  - `predict.py`: Module for interactive prediction of insider threats.
-  - `evaluate.py`: Module for evaluating the model's performance.
-  - `main.py`: Main script to execute the entire workflow.
+### Prerequisites
 
-## Usage
-
-Ensure you have the required dependencies installed. Use the following commands:
-   cd path/to/your/folder
-   pip install -r requirements.txt
-
-
-
-## Files and Modules
-
-preprocess.py: Handles data loading, preprocessing, and feature engineering.
-
-train.py: Manages the training of the KMeans clustering model.
-
-monitoring.py: Monitors data for updates and re-trains the model accordingly.
-
-predict.py: Allows users to interactively predict insider threats.
-
-evaluate.py: Evaluates the performance of the model.
-
-## Dependencies
+What things you need to install the software and how to install them:
 
 ```bash
-pandas==1.3.3
-scikit-learn==0.24.2
-joblib==1.1.0
-numpy==1.21.2
-matplotlib==3.4.3
-threading==0.1
-scipy==1.7.2
+# Example of required tools and libraries (this will vary based on actual project requirements)
+python>=3.7
+numpy
+pandas
+sklearn
+matplotlib
 ```
+## Installing
+**A step-by-step series of examples that tell you how to get a development environment running:**
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/atulvinod01/InsiderThreatDetection.git
+   cd InsiderThreatDetection
+   ```
+2. Install the required packages
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Usage
+  ```bash
+   # Example Python code demonstrating a simple use case
+    from insider_threat_detector import ThreatDetector
+    
+    detector = ThreatDetector()
+    alerts = detector.analyze_log('path_to_log_file.csv')
+    print(alerts)
+  ```
+
