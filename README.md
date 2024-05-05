@@ -30,14 +30,10 @@ matplotlib
    ```bash
    pip install -r requirements.txt
    ```
+3. Load the dataset to the folder
 
 ## Usage
   ```bash
-   # Example Python code demonstrating a simple use case
-    from insider_threat_detector import ThreatDetector
-    
-    detector = ThreatDetector()
-    alerts = detector.analyze_log('path_to_log_file.csv')
-    print(alerts)
+   python3 main.py
   ```
 
